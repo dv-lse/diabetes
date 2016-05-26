@@ -1,0 +1,58 @@
+.drug text {
+  stroke: none;
+  fill: black;
+  opacity: .7;
+}
+
+#selectors {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+}
+
+#viz {
+  position: absolute;
+}
+
+.selector.disabled:before {
+  content: '□';
+  margin-right: 5px;
+}
+
+.selector:before {
+  content: '✓';
+  margin-right: 5px;
+}
+
+.selector.disabled input {
+  visibility: hidden;
+}
+
+.selector {
+  margin: 5px;
+  padding: 5px;
+  border: dotted gray .5pt;
+}
+
+.selector label {
+  cursor: pointer;
+}
+
+.selector input {
+  margin-left: 10px;
+  width: 100px;
+  height: 1.5em;
+}
+
+.axis {
+  opacity: 0.5
+}
+
+.axis .domain {
+  fill: none;
+  stroke: black;
+}
+
+.axis text {
+  font-size: 7pt;
+}

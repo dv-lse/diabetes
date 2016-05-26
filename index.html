@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<meta charset='UTF-8'>
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>LSE Diabetes DV</title>
+<link href='https://fonts.googleapis.com/css?family=Roboto|Roboto+Condensed' rel='stylesheet' type='text/css'>
+<script src="jspm_packages/system.js"></script>
+<script src="config.js"></script>
+
+<svg id='viz'></svg>
+
+<div id='selectors'>
+  <div class='blood_sugar selector disabled input-group'>
+    <label>What is your blood sugar level?</label><input type="number"></input></div>
+  <div class='body_weight selector disabled input-group'>
+    <label>What is your weight (kg)?</label><input type="number"></input></div>
+  <div class='hypoglycaemia selector disabled input-group'>
+    <label>Hypoglycaemia risk</label></div>
+</div>
+
+<script>
+  System.import('index.js');
+</script>
