@@ -14,11 +14,11 @@ Deploy on github pages
 .gitignore and index.html to load from a bundled build.js file.  The second
 holds the actual build.js file, and is recreated at each deploy.
 
-Deploy recipe:
+Deploy recipe (rebases the last commit on gh-pages):
 
 git checkout gh-pages
 git rebase master
-jspm bundle index.js --minify
-git add .
+jspm bundle-sfx index.js --minify
+git add build.js*
 git commit --amend
-git push github gh-pages
+git push github gh-pages --force
