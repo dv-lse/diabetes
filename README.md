@@ -1,10 +1,21 @@
 Diabetes: LSE DV
 ================
 
-  -[ ] draft basic scatter chart
-  -[ ] body weight entry box
-  -[ ] blood sugar entry box
-  -[ ] hypoglycaemia bars
+  - [x] draft basic scatter chart
+  - [ ] body weight entry box
+  - [ ] blood sugar entry box
+  - [ ] hypoglycaemia bars
+
+  - [ ] check stats calc
+  - [ ] sliders for stat entry
+  - [ ] axis animates out?
+  - [ ] move axis to current? or move dots?
+  - [ ] push extent out 10% both axes
+  - [x] hide collapsed labels
+
+  - [ ] move metformin & others in 2 stages, temporary signpost labels?
+  - [ ] rule lines for each drug
+
 
 
 Deploy on github pages

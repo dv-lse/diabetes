@@ -35,14 +35,16 @@ function install(vals) {
   g = d3.select('#viz').append('g')
       .attr('transform', 'translate(' + [MARGINS.left, MARGINS.top] + ')')
 
-  scatter_x = d3.scaleLinear()
-  scatter_y = d3.scaleLinear()
-  bar_y = d3.scaleLinear()
+  scatter_x = d3.scale.linear()
+  scatter_y = d3.scale.linear()
+  bar_y = d3.scale.linear()
     .range([0,20])
     .domain(data, hypoglycaemia_f)
 
-  axis_x = d3.axisBottom(scatter_x)
-  axis_y = d3.axisLeft(scatter_y)
+  axis_x = d3.svg.axis()
+    .orient('bottom')
+  axis_y = d3.svg.axis()
+    .orient('left')
 
   g.append('g')
     .attr('class', 'axis x')
@@ -50,7 +52,7 @@ function install(vals) {
   g.append('g')
     .attr('class', 'axis y')
 
-  color = d3.scaleCategory10()
+  color = d3.scale.category10()
 
   let drug = g.selectAll('.drug')
       .data(data)
@@ -85,13 +87,10 @@ function update(dur=500) {
     .domain(d3.extent(data, blood_sugar_f).reverse())
   axis_y.scale(scatter_y)
 
-  let trans = g.transition()
-    .duration(dur)
-
-  trans.select('.axis.x')
+  g.select('.axis.x')
     .attr('transform', 'translate(0,' + height + ')')
     .call(axis_x)
-  trans.select('.axis.y')
+  g.select('.axis.y')
     .call(axis_y)
 
   let drug = g.selectAll('.drug')
