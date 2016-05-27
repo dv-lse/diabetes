@@ -2,7 +2,7 @@ import 'styles.css!'
 
 import d3 from 'd3'
 
-const MARGINS = { top: 30, right: 250, bottom: 150, left: 100 }
+const MARGINS = { top: 30, right: 250, bottom: 50, left: 100 }
 
 // state
 
@@ -84,7 +84,7 @@ function update(dur=500) {
   axis_x.scale(scatter_x)
 
   scatter_y.range([height, 0])
-    .domain(d3.extent(data, blood_sugar_f).reverse())
+    .domain(d3.extent(data, blood_sugar_f))
   axis_y.scale(scatter_y)
 
   g.select('.axis.x')
@@ -99,6 +99,7 @@ function update(dur=500) {
   drug.exit().remove()
 
   console.log('updating ' + JSON.stringify(state))
+  let num_active = d3.values(active).reduce( (count,cur) => cur ? count+1 : count)
   drug.transition()
       .duration(dur)
     .attr('transform', (d,i) => {
@@ -106,6 +107,8 @@ function update(dur=500) {
       let ty = active.blood_sugar ? scatter_y(blood_sugar_f(d)) : height
       return 'translate(' + [tx, ty] + ')'
     })
+    .select('text')
+      .attr('opacity', num_active ? 1 : 0)
 }
 
 // bootstrap

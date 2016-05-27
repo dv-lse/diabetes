@@ -1,13 +1,13 @@
-.drug text {
-  stroke: none;
-  fill: black;
-  opacity: .7;
+body {
+  font-family: Roboto;
+  font-size: 10pt;
 }
 
 #selectors {
   position: fixed;
-  top: 10px;
+  top: 100px;
   right: 10px;
+  background-color:rgba(255,255,255,0.6);
 }
 
 #viz {
@@ -48,11 +48,13 @@
   opacity: 0.5
 }
 
-.axis .domain {
+.axis path,
+.axis line {
   fill: none;
-  stroke: black;
+  stroke: #000;
+  shape-rendering: crispEdges;
 }
 
 .axis text {
-  font-size: 7pt;
+  font-size: 8px;
 }
