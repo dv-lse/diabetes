@@ -14,28 +14,32 @@ body {
   position: absolute;
 }
 
-.drug .rule path {
+.drug .label {
+  fill: black;
+  stroke: none;
+}
+
+#rule line {
+  fill: none;
+  stroke: gray;
   stroke-dasharray: 1, 2;
 }
 
-.drug .rule {
-  fill: none;
-  stroke: gray;
-  visibility: hidden;
-}
-
-.drug .rule text {
-  font-size: 7pt;
+#rule text {
   fill: gray;
   stroke: none;
 }
 
-.drug:hover {
-  cursor: pointer;
+.drug {
+  opacity: 0.2;
 }
 
-.drug:hover .rule {
-  visibility: visible;
+.drug.selected {
+  opacity: 1;
+}
+
+.drug:hover {
+  cursor: pointer;
 }
 
 .selector.disabled:before {
@@ -80,6 +84,8 @@ body {
   shape-rendering: crispEdges;
 }
 
-.axis text {
-  font-size: 8px;
+.axis .tick text {
+  font-size: 106pt;
+  letter-spacing: -8pt;
+  opacity: 0.05;
 }

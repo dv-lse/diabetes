@@ -11,7 +11,7 @@ function slider() {
   let domain = [0,100]
   let format = (v) => '' + v
 
-  let dispatch = d3.dispatch('change')
+  let dispatch = d3.dispatch('start', 'change', 'done')
   let slider_x = d3.scale.linear()
     .clamp(true)
 
@@ -33,11 +33,15 @@ function slider() {
         .attr('class', 'slider-handle-icon')
       e.call(d3.behavior.drag()
         .on('dragstart', () => {
-          dispatch.change(slider_x.invert(d3.mouse(tray.node())[0]))
+          dispatch.start()
+//          dispatch.change(slider_x.invert(d3.mouse(tray.node())[0]))
           d3.event.sourceEvent.preventDefault()
         })
         .on('drag', () => {
           dispatch.change(slider_x.invert(d3.mouse(tray.node())[0]))
+        })
+        .on('dragend', () => {
+          dispatch.done()
         }))
       dispatch.on('change.slider', (d) => {
         value = d
