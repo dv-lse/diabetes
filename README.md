@@ -4,7 +4,7 @@ Diabetes: LSE DV
   - [x] draft basic scatter chart
   - [x] body weight entry box
   - [x] blood sugar entry box
-  - [ ] hypoglycaemia bars
+  - [x] hypoglycaemia bars
 
   - [ ] check stats calc
   - [x] sliders for stat entry
@@ -27,7 +27,7 @@ Diabetes: LSE DV
 
   - [ ] circle of drugs in non-focus mode?
   - [ ] make selected drug pulse?
-  - [ ] shoot rule text in from side
+  - [ ] shoot rule text in from side  NOT TO DO
 
 
 Deploy on github pages

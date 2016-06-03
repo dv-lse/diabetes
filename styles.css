@@ -7,7 +7,7 @@ body {
   position: fixed;
   top: 100px;
   right: 10px;
-  background-color:rgba(255,255,255,0.6);
+  background-color:rgba(255,255,255,0.9);
 }
 
 #viz {
@@ -15,7 +15,7 @@ body {
 }
 
 .drug .label {
-  fill: black;
+  fill: gray;
   stroke: none;
 }
 
@@ -34,14 +34,6 @@ body {
 #rule text {
   fill: gray;
   stroke: none;
-}
-
-.drug {
-  opacity: 0.2;
-}
-
-.drug.selected {
-  opacity: 1;
 }
 
 .drug:hover {
@@ -92,6 +84,10 @@ body {
 
 .axis {
   opacity: 1;
+}
+
+.axis .label {
+  fill: #999999;
 }
 
 .axis path,

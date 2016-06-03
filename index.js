@@ -4,7 +4,7 @@ import d3 from 'd3'
 
 import slider from './slider'
 
-const MARGINS = { top: 30, right: 250, bottom: 100, left: 150 }
+const MARGINS = { top: 30, right: 340, bottom: 100, left: 30 }
 const SLIDER_WIDTH = 250
 
 const BLOOD_SUGAR_SEL_EXTENT = [ 6, 14 ]             // units: HbA1c %
@@ -122,7 +122,7 @@ function install() {
     .append('text')
       .attr('class', 'label')
       .attr('transform', 'rotate(-90)')
-      .attr('dy', '1.3em')
+      .attr('dy', '-.6em')
       .attr('text-anchor', 'end')
       .text('Blood sugar (%)')
 
@@ -153,7 +153,7 @@ function install() {
   let drug = g.selectAll('.drug')
       .data(data)
     .enter().append('g')
-      .attr('class', 'drug selected')
+      .attr('class', 'drug')
 
   drug.append('circle')
     .attr('fill', (d) => color(drug_f(d)))
@@ -176,16 +176,11 @@ function install() {
 
   drug.append('text')
     .attr('class', 'label')
-    .attr('x', '1.3em')
-    .attr('y', '1.3em')
+    .attr('x', DRUG_CIRCLE_RADIUS + 2)
+    .attr('y', DRUG_CIRCLE_RADIUS + 2)
     .text(drug_f)
 
-  drug.on('click', function(d) {
-      let elem = d3.select(this)
-      let selected = elem.classed('selected')
-      elem.classed('selected', !selected)
-    })
-  drug.on('mouseover', function(d) {
+  drug.on('mouseover', function(d,i) {
     let rule = d3.select('#rule')
     let x = tx(d)
     let y = ty(d)
@@ -204,12 +199,16 @@ function install() {
     rule.transition()
       .duration(750)
       .attr('opacity', 1)
+
+    update(150, true, i)
   })
   drug.on('mouseout', function(d) {
     d3.select('#rule')
       .transition()
       .delay(500)
       .attr('opacity', '0')
+
+    update(500, true)
   })
 }
 
@@ -235,7 +234,7 @@ function calibrate() {
 }
 
 let trans = null
-function update(dur=500, local_scale=true) {
+function update(dur=500, local_scale=true, focus_i=-1) {
   d3.select('#viz')
     .attr('width', width + MARGINS.left + MARGINS.right)
     .attr('height', height + MARGINS.top + MARGINS.bottom)
@@ -284,6 +283,8 @@ function update(dur=500, local_scale=true) {
   let overlaps = active.body_weight && !active.blood_sugar
   trans = drug.transition()
       .duration(dur)
+
+  trans.attr('opacity', (d,i) => focus_i < 0 || focus_i === i ? 1 : .3)
   trans.attr('transform', (d,i) => {
       return 'translate(' + [tx(d), ty(d)] + ')rotate(' + (overlaps ? -90 : 0) + ')'
     })
