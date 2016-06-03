@@ -6,19 +6,17 @@ import 'slider.css!'
 
 function slider() {
   let value
-
-  let width = 100
-  let domain = [0,100]
+  let scale = d3.scale.linear()
+    .range([0,100])
+    .domain([0,100])
+    .clamp(true)
   let format = (v) => '' + v
 
   let dispatch = d3.dispatch('start', 'change', 'done')
-  let slider_x = d3.scale.linear()
-    .clamp(true)
 
   function widget(elem) {
+    let width = scale.domain()[1] - scale.domain()[0]
     value = value || (domain[0] + domain[1]) / 2
-    slider_x.range([0,width])
-      .domain(domain)
     elem.each(function() {
       let e = d3.select(this)
         .style('width', width + 'px')
@@ -34,11 +32,10 @@ function slider() {
       e.call(d3.behavior.drag()
         .on('dragstart', () => {
           dispatch.start()
-//          dispatch.change(slider_x.invert(d3.mouse(tray.node())[0]))
           d3.event.sourceEvent.preventDefault()
         })
         .on('drag', () => {
-          dispatch.change(slider_x.invert(d3.mouse(tray.node())[0]))
+          dispatch.change(scale(d3.mouse(tray.node())[0]))
         })
         .on('dragend', () => {
           dispatch.done()
@@ -50,21 +47,22 @@ function slider() {
       update()
 
       function update() {
-        handle.style('left', slider_x(value) + "px")
+        let offset = 0
+        if(scale.invert) { offset = scale.invert(value) }
+        else if(scale.invertExtent) {
+          offset = scale.invertExtent(value).reduce( (a,b) => a + b ) / 2
+        }
+
+        handle.style('left', offset + "px")
         readout.html(format(value))
       }
     })
   }
 
-  widget.width = function() {
-    if(!arguments.length) return width
-    width = arguments[0]
-    return widget
-  }
-
-  widget.domain = function() {
-    if(!arguments.length) return domain
-    domain = arguments[0]
+  widget.scale = function() {
+    if(!arguments.length) return scale
+    scale = arguments[0].copy()
+    if(scale.clamp) { scale.clamp(true) }
     return widget
   }
 

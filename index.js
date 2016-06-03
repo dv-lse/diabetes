@@ -5,6 +5,8 @@ import d3 from 'd3'
 import slider from './slider'
 
 const MARGINS = { top: 30, right: 250, bottom: 100, left: 150 }
+const SLIDER_WIDTH = 250
+
 const BLOOD_SUGAR_SEL_EXTENT = [ 6, 14 ]             // units: HbA1c %
 const BODY_WEIGHT_SEL_EXTENT = [ 75, 120 ]           // units: kg
 
@@ -46,10 +48,11 @@ let body_weight_format = (d) => round4(d) + ' kg'
 function install() {
 
   let blood_sugar_slider = slider()
-    .width(250)
-    .domain(BLOOD_SUGAR_SEL_EXTENT)
-    .format(blood_sugar_format)
+    .scale(d3.scale.linear()
+      .domain([0,SLIDER_WIDTH])
+      .range(BLOOD_SUGAR_SEL_EXTENT))
     .value(state.blood_sugar)
+    .format(blood_sugar_format)
     .on('start', () => { update(500, false) })
     .on('change', (val) => {
       state.blood_sugar = val
@@ -57,8 +60,9 @@ function install() {
     })
     .on('done', () => { update(500, true) })
   let body_weight_slider = slider()
-    .width(250)
-    .domain(BODY_WEIGHT_SEL_EXTENT)
+    .scale(d3.scale.linear()
+      .domain([0,SLIDER_WIDTH])
+      .range(BODY_WEIGHT_SEL_EXTENT))
     .format(body_weight_format)
     .value(state.body_weight)
     .on('start', () => { update(500, false) })
@@ -267,8 +271,6 @@ d3.csv('./data.csv', (err, data) => {
 function update_selector_state(name) {
   d3.select('.selector.' + name)
     .classed('disabled', !active[name])
-    .select('input')
-      .attr('value', state[name])
 }
 
 d3.selectAll('.selector label').on('click', function() {
@@ -277,14 +279,6 @@ d3.selectAll('.selector label').on('click', function() {
     if(elem.classed(key)) { active[key] = !active[key] }
   })
   update(500, true)
-})
-
-d3.selectAll('.selector input').on('change', function() {
-  let elem = d3.select(this.parentNode)
-  d3.keys(active).forEach( (key) => {
-    if(elem.classed(key)) { state[key] = +this.value }
-  })
-  update(0, false)
 })
 
 window.onresize = () => {
