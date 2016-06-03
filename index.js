@@ -10,13 +10,14 @@ const SLIDER_WIDTH = 250
 const BLOOD_SUGAR_SEL_EXTENT = [ 6, 14 ]             // units: HbA1c %
 const BODY_WEIGHT_SEL_EXTENT = [ 75, 120 ]           // units: kg
 
+const HYPOGLYCAEMIA_SLIDER_POINTS = [ 6, 12, 24, 60, 120, 180, 240, 300, 480, 600, 720, 840 ]          // units: months
+const DRUG_CIRCLE_RADIUS = 20
+
 // state
 
 let width, height
 
 let blood_sugar_extent, body_weight_extent
-
-// TODO.  selected drugs should be in a javascript variable, not a CSS class
 
 let active = {
   blood_sugar: false,
@@ -26,7 +27,8 @@ let active = {
 
 let state = {
   blood_sugar: 8.27,
-  body_weight: 90
+  body_weight: 90,
+  hypoglycaemia: 6
 }
 
 let g, axis_x, axis_y
@@ -38,12 +40,14 @@ let data
 function drug_f(d) { return d['Drug'] }
 function blood_sugar_f(d) { return +d['Blood sugar'] + state.blood_sugar }
 function body_weight_f(d) { return +d['Body weight'] + state.body_weight }
-function hypoglycaemia_f(d) { return +d['Hypoglycaemia'] }
+function hypoglycaemia_f(d) { return +d['Hypoglycaemia'] / 6 * state.hypoglycaemia }
 
 let percent = d3.format('0.2%')
 let blood_sugar_format = (d) => percent(d/100)
 let round4 = d3.format('0.4r')
 let body_weight_format = (d) => round4(d) + ' kg'
+let suture = (data, labels, delim) => d3.zip(data, labels).filter((d) => d[0]).reduce((a,b) => a.concat(b)).join(' ')
+let hypoglycaemia_format = (d) => suture([Math.floor(d/12), d%12], [' years', ' months'])
 
 function install() {
 
@@ -71,20 +75,31 @@ function install() {
       update(0, false)
     })
     .on('done', () => { update(500, true) })
+  let hypoglycaemia_slider = slider()
+    .scale(d3.scale.quantize()
+      .domain([0,SLIDER_WIDTH])
+      .range(HYPOGLYCAEMIA_SLIDER_POINTS))
+    .format(hypoglycaemia_format)
+    .value(state.hypoglycaemia)
+    .on('start', () => { update(500, false) })
+    .on('change', (val) => {
+      state.hypoglycaemia = val
+      update(0, false)
+    })
+    .on('done', () => { update(500, true) })
 
   d3.select('.blood_sugar .slider')
     .call(blood_sugar_slider)
   d3.select('.body_weight .slider')
     .call(body_weight_slider)
+  d3.select('.hypoglycaemia .slider')
+    .call(hypoglycaemia_slider)
 
   g = d3.select('#viz').append('g')
       .attr('transform', 'translate(' + [ MARGINS.left, MARGINS.top ] + ')')
 
   scatter_x = d3.scale.linear()
   scatter_y = d3.scale.linear()
-  bar_y = d3.scale.linear()
-    .range([0,20])
-    .domain(data, hypoglycaemia_f)
 
   axis_x = d3.svg.axis()
     .orient('bottom')
@@ -143,7 +158,17 @@ function install() {
     .attr('fill', (d) => color(drug_f(d)))
     .attr('stroke', 'white')
     .attr('stroke-width', 3)
-    .attr('r', 20)
+    .attr('r', DRUG_CIRCLE_RADIUS)
+
+  let risk = drug.append('g')
+    .attr('class', 'risk')
+    .attr('opacity', 0)
+  risk.append('circle')
+    .attr('class', 'background')
+    .attr('stroke', 'none')
+    .attr('fill', 'white')
+    .attr('r', DRUG_CIRCLE_RADIUS - 5)
+
   drug.append('text')
     .attr('class', 'label')
     .attr('dx', '1.3em')
@@ -252,6 +277,10 @@ function update(dur=500, local_scale=true) {
   trans.attr('transform', (d,i) => {
       return 'translate(' + [tx(d), ty(d)] + ')rotate(' + (overlaps ? -90 : 0) + ')'
     })
+  trans.select('.risk')
+    .attr('opacity', (d) => {
+      let val = hypoglycaemia_f(d)
+      return active.hypoglycaemia ? Math.min(1, 1-val) : 0 })
   trans.select('.label')
     .attr('opacity', num_active && local_scale ? 1 : 0)
 }

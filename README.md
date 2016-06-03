@@ -20,6 +20,10 @@ Diabetes: LSE DV
   - [ ] duplicate axis labels in small black
 
   - [ ] weight only config needs to rotate other labels too
+  - [ ] selected drugs should be in a javascript variable, not a CSS class
+
+  - [ ] visualise risk of hypoglycaemia:  as spill of days across screen, some of
+          which get caught in the drug circles?
 
   - [ ] circle of drugs in non-focus mode?
   - [ ] make selected drug pulse?
