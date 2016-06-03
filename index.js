@@ -14,6 +14,8 @@ const HYPOGLYCAEMIA_SLIDER_POINTS = [ 6, 12, 24, 60, 120, 180, 240, 300, 480, 60
 const DRUG_CIRCLE_RADIUS = 20
 const INCIDENT_CIRCLE_RADIUS = DRUG_CIRCLE_RADIUS / 8
 
+const NO_AXIS_RADIUS = 200
+
 // state
 
 let width, height
@@ -181,9 +183,13 @@ function install() {
     .text(drug_f)
 
   drug.on('mouseover', function(d,i) {
+
+    // TODO.  need a reasonable solution when in single-axis mode
+    if(! (active.blood_sugar && active.body_weight)) return
+
     let rule = d3.select('#rule')
-    let x = tx(d)
-    let y = ty(d)
+    let x = tx(d,i,active)
+    let y = ty(d,i,active)
 
     rule.select('.x')
       .attr('transform', 'translate(0,' + y + ')')
@@ -259,8 +265,8 @@ function update(dur=500, local_scale=true, focus_i=-1) {
   trans.attr('transform', 'translate(' + [ MARGINS.left + (active.body_weight ? 0 : width / 2),
                                            MARGINS.top + (active.blood_sugar ? 0 : -height / 2)] + ')')
 
+
   trans.select('.axis.x')
-    .attr('transform', 'translate(0,' + height + ')')
     .attr('transform', 'translate(0,' + (active.blood_sugar ? scatter_y(state.blood_sugar) : height) + ')')
     .call(axis_x)
     .style('opacity', active.body_weight ? 1 : 0)
@@ -274,22 +280,22 @@ function update(dur=500, local_scale=true, focus_i=-1) {
     .select('.label')
       .attr('transform', 'translate(0,' + scatter_y.range()[1] + ')rotate(-90)')
 
+  let overlaps = active.body_weight && !active.blood_sugar
+
   let drug = g.selectAll('.drug')
     .data(data)
 
   drug.exit().remove()
 
-  let num_active = d3.values(active).reduce( (count,cur) => cur ? count+1 : count)
-  let overlaps = active.body_weight && !active.blood_sugar
   trans = drug.transition()
       .duration(dur)
 
   trans.attr('opacity', (d,i) => focus_i < 0 || focus_i === i ? 1 : .3)
   trans.attr('transform', (d,i) => {
-      return 'translate(' + [tx(d), ty(d)] + ')rotate(' + (overlaps ? -90 : 0) + ')'
+      return 'translate(' + [tx(d, i, active), ty(d, i, active)] + ')rotate(' + (overlaps ? -90 : 0) + ')'
     })
   trans.select('.label')
-    .attr('opacity', num_active && local_scale ? 1 : 0)
+    .attr('opacity', local_scale ? 1 : 0)
   trans.select('.label_risk')
     .text( (d) => {
       let incidents = Math.round(hypoglycaemia_f(d))
@@ -300,10 +306,10 @@ function update(dur=500, local_scale=true, focus_i=-1) {
 
   let incident = drug.select('.risk')
     .selectAll('.incident')
-    .data( (d) => {
+    .data( (d,i) => {
       if(!active.hypoglycaemia) { return [] }
-      let x = tx(d)
-      let y = ty(d)
+      let x = tx(d, i, active)
+      let y = ty(d, i, active)
       let incidents = hypoglycaemia_f(d)
       return incidents_in_circle(incidents, INCIDENT_CIRCLE_RADIUS, DRUG_CIRCLE_RADIUS - 5 - INCIDENT_CIRCLE_RADIUS - 2)
     })
@@ -317,8 +323,14 @@ function update(dur=500, local_scale=true, focus_i=-1) {
     .attr('opacity', (d) => d.value)
 }
 
-  function tx(d) { return active.body_weight ? scatter_x(body_weight_f(d)) : 0 }
-  function ty(d) { return active.blood_sugar ? scatter_y(blood_sugar_f(d)) : height }
+  function tx(d,i,active) {
+    if(!active.blood_sugar && !active.body_weight) return NO_AXIS_RADIUS * Math.sin(2 * Math.PI * i / data.length)
+    return active.body_weight ? scatter_x(body_weight_f(d)) : 0
+  }
+  function ty(d,i,active) {
+    if(!active.blood_sugar && !active.body_weight) return NO_AXIS_RADIUS * Math.cos(2 * Math.PI * i / data.length) + height
+    return active.blood_sugar ? scatter_y(blood_sugar_f(d)) : height
+  }
 
 // bootstrap
 d3.csv('./data.csv', (err, data) => {
@@ -358,6 +370,7 @@ function rand_in_circle(cr) {
 function incidents_in_circle(n, r, cr) {
   // TODO.  NOT the best solution...
   let tilt = 200
+
   let result = []
   while(result.length < n) {
     let p = rand_in_circle(cr)
