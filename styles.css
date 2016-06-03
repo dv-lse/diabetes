@@ -19,6 +19,12 @@ body {
   stroke: none;
 }
 
+.drug .label_risk {
+  font-size: 10pt;
+  fill: #d62728;
+  stroke: none;
+}
+
 #rule line {
   fill: none;
   stroke: gray;
@@ -39,7 +45,18 @@ body {
 }
 
 .drug:hover {
-  cursor: pointer;
+  cursor: crosshair;
+}
+
+.drug .risk .label_risk {
+  visibility: hidden;
+}
+
+.drug:hover .risk .incident {
+  visibility: hidden;
+}
+.drug:hover .risk .label_risk {
+  visibility: visible;
 }
 
 .selector.disabled:before {

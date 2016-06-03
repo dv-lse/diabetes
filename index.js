@@ -12,6 +12,7 @@ const BODY_WEIGHT_SEL_EXTENT = [ 75, 120 ]           // units: kg
 
 const HYPOGLYCAEMIA_SLIDER_POINTS = [ 6, 12, 24, 60, 120, 180, 240, 300, 480, 600, 720, 840 ]          // units: months
 const DRUG_CIRCLE_RADIUS = 20
+const INCIDENT_CIRCLE_RADIUS = DRUG_CIRCLE_RADIUS / 8
 
 // state
 
@@ -31,8 +32,8 @@ let state = {
   hypoglycaemia: 6
 }
 
-let g, axis_x, axis_y
-let scatter_x, scatter_y, bar_y
+let g, axis_x, axis_y, rule_x, rule_y
+let scatter_x, scatter_y
 let color
 
 let data
@@ -81,10 +82,10 @@ function install() {
       .range(HYPOGLYCAEMIA_SLIDER_POINTS))
     .format(hypoglycaemia_format)
     .value(state.hypoglycaemia)
-    .on('start', () => { update(500, false) })
+    .on('start', () => { update(500, true) })
     .on('change', (val) => {
       state.hypoglycaemia = val
-      update(0, false)
+      update(0, true)
     })
     .on('done', () => { update(500, true) })
 
@@ -128,7 +129,7 @@ function install() {
   let rule = g.append('g')
     .attr('id', 'rule')
     .attr('opacity', 0)
-  let rule_x = rule.append('g')
+  rule_x = rule.append('g')
     .attr('class', 'x')
   rule_x.append('line')
     .attr('x1', 0)
@@ -137,7 +138,7 @@ function install() {
     .attr('dx', -25)
     .attr('dy', '1.3em')
     .attr('text-anchor', 'end')
-  let rule_y = rule.append('g')
+  rule_y = rule.append('g')
     .attr('class', 'y')
   rule_y.append('line')
     .attr('y1', 0)
@@ -168,11 +169,15 @@ function install() {
     .attr('stroke', 'none')
     .attr('fill', 'white')
     .attr('r', DRUG_CIRCLE_RADIUS - 5)
+  risk.append('text')
+    .attr('class', 'label_risk')
+    .attr('text-anchor', 'middle')
+    .attr('dy', '0.3em')
 
   drug.append('text')
     .attr('class', 'label')
-    .attr('dx', '1.3em')
-    .attr('dy', '1.3em')
+    .attr('x', '1.3em')
+    .attr('y', '1.3em')
     .text(drug_f)
 
   drug.on('click', function(d) {
@@ -235,6 +240,11 @@ function update(dur=500, local_scale=true) {
     .attr('width', width + MARGINS.left + MARGINS.right)
     .attr('height', height + MARGINS.top + MARGINS.bottom)
 
+  rule_x.select('line')
+    .attr('x2', width)
+  rule_y.select('line')
+    .attr('y2', height)
+
   d3.keys(active).map(update_selector_state)
 
   scatter_x.range([0, active.body_weight ? width : 0])
@@ -277,12 +287,33 @@ function update(dur=500, local_scale=true) {
   trans.attr('transform', (d,i) => {
       return 'translate(' + [tx(d), ty(d)] + ')rotate(' + (overlaps ? -90 : 0) + ')'
     })
-  trans.select('.risk')
-    .attr('opacity', (d) => {
-      let val = hypoglycaemia_f(d)
-      return active.hypoglycaemia ? Math.min(1, 1-val) : 0 })
   trans.select('.label')
     .attr('opacity', num_active && local_scale ? 1 : 0)
+  trans.select('.label_risk')
+    .text( (d) => {
+      let incidents = Math.round(hypoglycaemia_f(d))
+      return incidents ? '~' + incidents : '<1'
+    })
+  trans.select('.risk')
+    .attr('opacity', active.hypoglycaemia ? 1 : 0)
+
+  let incident = drug.select('.risk')
+    .selectAll('.incident')
+    .data( (d) => {
+      if(!active.hypoglycaemia) { return [] }
+      let x = tx(d)
+      let y = ty(d)
+      let incidents = hypoglycaemia_f(d)
+      return incidents_in_circle(incidents, INCIDENT_CIRCLE_RADIUS, DRUG_CIRCLE_RADIUS - 5 - INCIDENT_CIRCLE_RADIUS - 2)
+    })
+  incident.exit().remove()
+  incident.enter().append('circle')
+    .attr('class', 'incident')
+    .attr('r', INCIDENT_CIRCLE_RADIUS)
+    .attr('fill', 'rgb(214, 39, 40)')
+  incident.attr('cx', (d) => d.x)
+    .attr('cy', (d) => d.y)
+    .attr('opacity', (d) => d.value)
 }
 
   function tx(d) { return active.body_weight ? scatter_x(body_weight_f(d)) : 0 }
@@ -313,4 +344,26 @@ d3.selectAll('.selector label').on('click', function() {
 window.onresize = () => {
   calibrate()
   update(0, true)
+}
+
+// utility
+
+function rand_in_circle(cr) {
+  let r = Math.random() * cr
+  let a = Math.random() * 2 * Math.PI
+  return { x: r * Math.sin(a), y: r * Math.cos(a) }
+}
+
+function incidents_in_circle(n, r, cr) {
+  // TODO.  NOT the best solution...
+  let tilt = 200
+  let result = []
+  while(result.length < n) {
+    let p = rand_in_circle(cr)
+    let collide = result.some( (d) => Math.sqrt(Math.pow(p.x - d.x,2) + Math.pow(p.y - d.y,2)) < r *2)
+    p.value = Math.min(1.0, n - result.length)
+    if(!collide || tilt < 0) { result.push(p) }
+    else { tilt-- }
+  }
+  return result
 }
