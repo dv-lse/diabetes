@@ -292,7 +292,11 @@ function update(dur=500, local_scale=true, focus_i=-1) {
   trans = drug.transition()
       .duration(dur)
 
-  trans.attr('opacity', (d,i) => focus_i < 0 || focus_i === i ? 1 : .3)
+  trans.attr('opacity', (d,i) => {
+    if(!local_scale) return i === 0 ? 1 : 0
+    if(focus_i >= 0 && focus_i !== i) return .3
+    return 1
+  })
   trans.attr('transform', (d,i) => {
       return 'translate(' + [tx(d, i, active), ty(d, i, active)] + ')rotate(' + (overlaps ? -90 : 0) + ')'
     })

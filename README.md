@@ -8,10 +8,11 @@ Diabetes: LSE DV
 
   - [ ] axes should be centered at base, not metformin
   - [ ] check stats calc
+
   - [x] initial screen needs labels
-  - [ ] mouseovers in single-axis modes
-  - [ ] axis labels in x-only overlaps
-  - [ ] show opposite axis while dragging?
+  - [x] mouseovers in single-axis modes
+  - [ ] axis labels in x-only overlaps  ALTERNATING SIDES WILL HANDLE THIS
+  - [ ] show opposite axis while dragging?  NOT DO TO
   - [x] order circle alphabetically
   - [x] put metformin in center of circle
   - [x] match circle to screen size
@@ -52,5 +53,5 @@ Deploy recipe (rebases the last commit on gh-pages):
   git rebase master
   jspm bundle-sfx index.js --minify
   git add build.js*
-  git commit --amend
+  git commit --amend --no-edit
   git push github gh-pages --force
