@@ -6,7 +6,16 @@ Diabetes: LSE DV
   - [x] blood sugar entry box
   - [x] hypoglycaemia bars
 
+  - [ ] axes should be centered at base, not metformin
   - [ ] check stats calc
+  - [x] initial screen needs labels
+  - [ ] mouseovers in single-axis modes
+  - [ ] axis labels in x-only overlaps
+  - [ ] show opposite axis while dragging?
+  - [x] order circle alphabetically
+  - [x] put metformin in center of circle
+  - [x] match circle to screen size
+
   - [x] sliders for stat entry
   - [x] axis animates out?
   - [x] move axis to current? or move dots?

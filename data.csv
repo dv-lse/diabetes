@@ -1,1 +1,10 @@
-Drug,Body weight,Blood sugar,HypoglycaemiaMetformin alone,0,0,0.012Sulfonylureas,2.17,-0.82,0.1063Glinides,1.4,-0.71,0.1261TZD,2.46,-0.2,0.0054AGI,-1.01,-0.66,0.0048DPP4-inhibitors,0.23,-0.69,0.0136GLP-1,-1.66,-1.02,0.011Basal insulin,1.38,-0.88,0.0572Biphasic insulin,3.41,-1.07,0.2134
+Drug,Body weight,Blood sugar,Hypoglycaemia
+Metformin alone,0,0,0.012
+AGI,-1.01,-0.66,0.0048
+Basal insulin,1.38,-0.88,0.0572
+Biphasic insulin,3.41,-1.07,0.2134
+DPP4-inhibitors,0.23,-0.69,0.0136
+Glinides,1.4,-0.71,0.1261
+GLP-1,-1.66,-1.02,0.011
+Sulfonylureas,2.17,-0.82,0.1063
+TZD,2.46,-0.2,0.0054

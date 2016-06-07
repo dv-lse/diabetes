@@ -14,7 +14,8 @@ const HYPOGLYCAEMIA_SLIDER_POINTS = [ 6, 12, 24, 60, 120, 180, 240, 300, 480, 60
 const DRUG_CIRCLE_RADIUS = 20
 const INCIDENT_CIRCLE_RADIUS = DRUG_CIRCLE_RADIUS / 8
 
-const NO_AXIS_RADIUS = 200
+const NO_AXIS_RADIUS = 9/10
+const NO_AXIS_RADIUS_BOUNDS = [ 125, 250 ]
 
 // state
 
@@ -324,12 +325,24 @@ function update(dur=500, local_scale=true, focus_i=-1) {
 }
 
   function tx(d,i,active) {
-    if(!active.blood_sugar && !active.body_weight) return NO_AXIS_RADIUS * Math.sin(2 * Math.PI * i / data.length)
+    if(!active.blood_sugar && !active.body_weight) {
+      if(i===0) return 0
+      return radius() * Math.cos(2 * Math.PI * (i-1) / (data.length-1) - Math.PI / 2)
+    }
     return active.body_weight ? scatter_x(body_weight_f(d)) : 0
   }
   function ty(d,i,active) {
-    if(!active.blood_sugar && !active.body_weight) return NO_AXIS_RADIUS * Math.cos(2 * Math.PI * i / data.length) + height
+    if(!active.blood_sugar && !active.body_weight) {
+      if(i===0) return height
+      return radius() * Math.sin(2 * Math.PI * (i-1) / (data.length-1) - Math.PI / 2) + height
+    }
     return active.blood_sugar ? scatter_y(blood_sugar_f(d)) : height
+  }
+  function radius() {
+    let screen_size = Math.min(width - 200, height)
+    let result = screen_size / 2 * NO_AXIS_RADIUS
+    result = Math.min(Math.max(result, NO_AXIS_RADIUS_BOUNDS[0]), NO_AXIS_RADIUS_BOUNDS[1])
+    return result
   }
 
 // bootstrap
@@ -338,7 +351,7 @@ d3.csv('./data.csv', (err, data) => {
   type(data)
   calibrate()
   install()
-  update(0, false)
+  update(0, true)
 })
 
 function update_selector_state(name) {
