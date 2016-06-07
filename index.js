@@ -148,7 +148,7 @@ function install() {
     .attr('y2', height)
   rule_y.append('text')
     .attr('dx', 25)
-    .attr('dy', '1.3em')
+    .attr('dy', '-.7em')  // ensures visibility even when drugs are rotated -90d
     .attr('text-anchor', 'begin')
 
   color = d3.scale.category10()
@@ -185,27 +185,28 @@ function install() {
 
   drug.on('mouseover', function(d,i) {
 
-    // TODO.  need a reasonable solution when in single-axis mode
-    if(! (active.blood_sugar && active.body_weight)) return
+    if(!active.blood_sugar && !active.body_weight) return
 
     let rule = d3.select('#rule')
     let x = tx(d,i,active)
     let y = ty(d,i,active)
 
+    rule = rule.transition()
+      .duration(750)
+      .attr('opacity', 1)
+
     rule.select('.x')
+      .attr('visibility', active.blood_sugar ? 'visible' : 'hidden')
       .attr('transform', 'translate(0,' + y + ')')
       .select('text')
         .attr('transform', 'translate(' + x + ')')
         .text(blood_sugar_format(blood_sugar_f(d)))
     rule.select('.y')
+      .attr('visibility', active.body_weight ? 'visible' : 'hidden')
       .attr('transform', 'translate(' + x + ',0)')
       .select('text')
         .attr('transform', 'translate(0,' + y + ')rotate(-90)')
         .text(body_weight_format(body_weight_f(d)))
-
-    rule.transition()
-      .duration(750)
-      .attr('opacity', 1)
 
     update(150, true, i)
   })
